@@ -1,0 +1,156 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >
+  digitization-tasks
+
+  Creates Asana tasks for new Aeon digitization transactions.
+
+Parameters:
+  ApplicationEnvironment:
+    Type: String
+    Description: Environment in which the application should be deployed.
+    AllowedValues:
+      - dev
+      - prod
+  ApplicationName:
+    Type: String
+    Description: Name of the application to be deployed.
+    Default: digitization_tasks
+
+Resources:
+  DigitizationTasksRunctionRole:
+    Type: AWS::IAM::Role
+    Properties: 
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Description: !Sub 'Allows ${ApplicationName} lambda to be executed successfully.'
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: DigitizationTasksParameterStorePolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action: 
+                  - 'ssm:GetParametersByPath*'
+                Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${ApplicationEnvironment}/${ApplicationName}*'
+ 
+  LastRunParam:
+    Type: AWS::SSM::Parameter
+    Properties: 
+      Description: Datetime string representing the last time this script was executed.
+      Name: !Sub /${ApplicationEnvironment}/${ApplicationName}/LAST_RUN_DATETIME
+      Tags: 
+        Environment: !Ref ApplicationEnvironment
+        Application: !Ref ApplicationName
+      Type: String
+      Value: "2014-01-01T00:00:00Z"
+
+  AeonAccessTokenParam:
+    Type: AWS::SSM::Parameter
+    Properties: 
+      Description: Access token for Aeon client.
+      Name: !Sub /${ApplicationEnvironment}/${ApplicationName}/AEON_ACCESS_TOKEN
+      Tags: 
+        Environment: !Ref ApplicationEnvironment
+        Application: !Ref ApplicationName
+      Type: String
+      Value: "2014-01-01T00:00:00Z"
+
+  AeonBaseUrlParam:
+    Type: AWS::SSM::Parameter
+    Properties: 
+      Description: Base URL for Aeon client.
+      Name: !Sub /${ApplicationEnvironment}/${ApplicationName}/AEON_BASEURL
+      Tags: 
+        Environment: !Ref ApplicationEnvironment
+        Application: !Ref ApplicationName
+      Type: String
+      Value: "2014-01-01T00:00:00Z"
+
+  AeonStatusCodeParam:
+    Type: AWS::SSM::Parameter
+    Properties: 
+      Description: Status code for new transactions.
+      Name: !Sub /${ApplicationEnvironment}/${ApplicationName}/AEON_STATUS_CODE
+      Tags: 
+        Environment: !Ref ApplicationEnvironment
+        Application: !Ref ApplicationName
+      Type: String
+      Value: "2014-01-01T00:00:00Z"
+
+  AsanaAccessTokenParam:
+    Type: AWS::SSM::Parameter
+    Properties: 
+      Description: Token for Asana client.
+      Name: !Sub /${ApplicationEnvironment}/${ApplicationName}/ASANA_ACCESS_TOKEN
+      Tags: 
+        Environment: !Ref ApplicationEnvironment
+        Application: !Ref ApplicationName
+      Type: String
+      Value: "2014-01-01T00:00:00Z"
+
+  AsanaProjectIdParam:
+    Type: AWS::SSM::Parameter
+    Properties: 
+      Description: Asana project ID in which new tasks should be created.
+      Name: !Sub /${ApplicationEnvironment}/${ApplicationName}/ASANA_PROJECT_ID
+      Tags: 
+        Environment: !Ref ApplicationEnvironment
+        Application: !Ref ApplicationName
+      Type: String
+      Value: "2014-01-01T00:00:00Z"
+
+  AsanaSectionIdParam:
+    Type: AWS::SSM::Parameter
+    Properties: 
+      Description: Asana section ID under which new tasks should be created.
+      Name: !Sub /${ApplicationEnvironment}/${ApplicationName}/ASANA_SECTION_ID
+      Tags: 
+        Environment: !Ref ApplicationEnvironment
+        Application: !Ref ApplicationName
+      Type: String
+      Value: "2014-01-01T00:00:00Z"
+
+  DigitizationTasksFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        S3Bucket: !Sub 'rac-${ApplicationEnvironment}-lambda'
+        S3Key: !Sub '${ApplicationName}.zip'
+      FunctionName: !Ref ApplicationName
+      Handler: handle_new_digitization_transactions.main
+      Role: !GetAtt DigitizationTasksFunctionRole.Arn
+      Runtime: python3.12
+      Timeout: 10
+      Environment:
+        Variables:
+          ENV:
+            Ref: ApplicationEnvironment
+          APP_CONFIG_PATH:
+            Ref: ApplicationName
+      Architectures:
+        - x86_64
+      Tags: 
+        - Key: Environment
+          Value: !Ref ApplicationEnvironment
+        - Key: Application
+          Value: !Ref ApplicationName
+
+  DigitizationTasksLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/${DigitizationTasksFunction}"
+      RetentionInDays: 90
+
+Outputs:
+  DigitizedAvTriggerFunction:
+    Description: "Digitization Tasks Lambda Function ARN"
+    Value: !GetAtt DigitizationTasksFunction.Arn
