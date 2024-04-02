@@ -1,5 +1,5 @@
 # digitization tasks
-Create tasks in Asana from new digitization requests in Aeon.
+Create tasks in Asana from new digitization transactions in Aeon.
 
 ## Dependencies
 - Python 3 (tested on 3.12)
