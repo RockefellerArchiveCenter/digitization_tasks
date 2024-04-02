@@ -74,9 +74,6 @@ def get_config(ssm_parameter_path):
 
 def task_data(transaction, project_id, section_id):
     """Formats initial task data."""
-    # TODO: add researcher name and TN number as custom fields
-    # TODO: transaction number field
-    # TODO: project and section IDs can be strings?
     return {
         "completed": False,
         "name": transaction['transactionNumber'],
