@@ -15,7 +15,6 @@ import boto3
 from asana import Client
 from requests import Session
 
-full_config_path = f"/{environ.get('ENV')}/{environ.get('APP_CONFIG_PATH')}"
 ssm_client = boto3.client(
     'ssm',
     region_name=environ.get('AWS_DEFAULT_REGION', 'us-east-1'))
@@ -36,10 +35,11 @@ class AeonClient(object):
         return self.session.get(full_url)
 
 
-def set_last_run_datetime(datetime_str):
+def set_last_run_datetime(datetime_str, config_path):
     ssm_client.put_parameter(
-        Name=f'{full_config_path}/LAST_RUN_DATETIME',
-        Value=datetime_str
+        Name=f'{config_path}/LAST_RUN_DATETIME',
+        Value=datetime_str,
+        Type="String"
     )
 
 
@@ -74,9 +74,12 @@ def get_config(ssm_parameter_path):
 
 def task_data(transaction, project_id, section_id):
     """Formats initial task data."""
+    # TODO: add researcher name and TN number as custom fields
+    # TODO: transaction number field
+    # TODO: project and section IDs can be strings?
     return {
         "completed": False,
-        "name": transaction[''],
+        "name": transaction['transactionNumber'],
         "projects": [project_id],
         "memberships": [
             {
@@ -89,6 +92,7 @@ def task_data(transaction, project_id, section_id):
 
 def main(event=None, context=None):
     task_count = 0
+    full_config_path = f"/{environ.get('ENV')}/{environ.get('APP_CONFIG_PATH')}"
     config = get_config(full_config_path)
     last_run_datetime = config.get('LAST_RUN_DATETIME')
     aeon_client = AeonClient(
@@ -97,20 +101,23 @@ def main(event=None, context=None):
     asana_client = Client.access_token(config.get("ASANA_ACCESS_TOKEN"))
     # opt-in to deprecation
     asana_client.headers = {
-        'asana-enable': 'new_user_task_lists,new_project_templates'}
+        'asana-enable': 'new_user_task_lists,new_project_templates,new_goal_memberships'}
 
     new_transaction_url = f"/odata/Requests?$filter=transactionstatus eq {config.get('AEON_STATUS_CODE')} and creationddate gt {last_run_datetime}"
     transaction_list = aeon_client.get(new_transaction_url).json()
     for transaction in transaction_list:
         asana_client.tasks.create_task(
-            task_data(transaction),
-            config.get(('ASANA_PROJECT_ID'),
-                       config.get('ASANA_SECTION_ID')))
+            task_data(
+                transaction,
+                config.get('ASANA_PROJECT_ID'),
+                config.get('ASANA_SECTION_ID'))
+        )
         task_count += 1
 
     label = "task" if task_count == 1 else "tasks"
     print(f"{task_count} {label} created")
-    set_last_run_datetime(datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"))
+    set_last_run_datetime(datetime.now().strftime(
+        "%Y-%m-%dT%H:%M:%SZ"), full_config_path)
     return task_count
 
 
