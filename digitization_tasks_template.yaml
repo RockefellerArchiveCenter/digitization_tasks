@@ -21,6 +21,10 @@ Parameters:
   AsanaAccessToken:
     Type: String
     Description: Access token for Asana.
+  LastRunDatetime:
+    Type: String
+    Description: Datetime string at which script was last run.
+    Default: "2022-01-01T00:00:00Z"
 
 Mappings:
   Aeon:
@@ -37,7 +41,6 @@ Mappings:
     SectionId:
       dev: 1206971441441575
       prod:
-    
 
 Resources:
   DigitizationTasksRunctionRole:
@@ -74,7 +77,7 @@ Resources:
         Environment: !Ref ApplicationEnvironment
         Application: !Ref ApplicationName
       Type: String
-      Value: # TODO
+      Value: !Ref LastRunDatetime
 
   AeonAccessTokenParam:
     Type: AWS::SSM::Parameter
@@ -166,6 +169,27 @@ Resources:
           Value: !Ref ApplicationEnvironment
         - Key: Application
           Value: !Ref ApplicationName
+
+  DigitizationTasksEventRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Description: "Triggers every five minutes"
+      EventPattern: Json
+      Name: every_five_minutes
+      RoleArn: 
+      ScheduleExpression: cron(0/5 12-22 ? * MON-FRI *)
+      State: ENABLED
+      Targets: 
+        - Arn: !GetAtt DigitizationTasksFunction.Arn
+          Id: "DigitizationTasks"
+
+  DigitizationTasksEventRulePermission: 
+  Type: AWS::Lambda::Permission
+  Properties: 
+    FunctionName: !Ref DigitizationTasksFunction
+    Action: "lambda:InvokeFunction"
+    Principal: "events.amazonaws.com"
+    SourceArn: !GetAtt DigitizationTasksEventRule.Arn
 
   DigitizationTasksLogGroup:
     Type: AWS::Logs::LogGroup
