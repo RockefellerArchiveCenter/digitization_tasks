@@ -15,6 +15,29 @@ Parameters:
     Type: String
     Description: Name of the application to be deployed.
     Default: digitization_tasks
+  AeonAccessToken:
+    Type: String
+    Description: Access token for Aeon.
+  AsanaAccessToken:
+    Type: String
+    Description: Access token for Asana.
+
+Mappings:
+  Aeon:
+    BaseUrl:
+      dev: 'https://raccess.rockarch.org/testweb/aeon/api'
+      prod: https://raccess.rockarch.org/aeon/api'
+    StatusCode:
+      dev: 32
+      prod: 32
+  Asana:
+    ProjectId:
+      dev: 1206971441441570
+      prod:
+    SectionId:
+      dev: 1206971441441575
+      prod:
+    
 
 Resources:
   DigitizationTasksRunctionRole:
@@ -51,7 +74,7 @@ Resources:
         Environment: !Ref ApplicationEnvironment
         Application: !Ref ApplicationName
       Type: String
-      Value: "2014-01-01T00:00:00Z"
+      Value: # TODO
 
   AeonAccessTokenParam:
     Type: AWS::SSM::Parameter
@@ -61,8 +84,8 @@ Resources:
       Tags: 
         Environment: !Ref ApplicationEnvironment
         Application: !Ref ApplicationName
-      Type: String
-      Value: "2014-01-01T00:00:00Z"
+      Type: SecureString
+      Value: !Ref AeonAccessToken
 
   AeonBaseUrlParam:
     Type: AWS::SSM::Parameter
@@ -73,7 +96,7 @@ Resources:
         Environment: !Ref ApplicationEnvironment
         Application: !Ref ApplicationName
       Type: String
-      Value: "2014-01-01T00:00:00Z"
+      Value: !FindInMap [Aeon, BaseUrl, !Ref Environment]
 
   AeonStatusCodeParam:
     Type: AWS::SSM::Parameter
@@ -84,7 +107,7 @@ Resources:
         Environment: !Ref ApplicationEnvironment
         Application: !Ref ApplicationName
       Type: String
-      Value: "2014-01-01T00:00:00Z"
+      Value: !FindInMap [Aeon, StatusCode, !Ref Environment]
 
   AsanaAccessTokenParam:
     Type: AWS::SSM::Parameter
@@ -94,8 +117,8 @@ Resources:
       Tags: 
         Environment: !Ref ApplicationEnvironment
         Application: !Ref ApplicationName
-      Type: String
-      Value: "2014-01-01T00:00:00Z"
+      Type: SecureString
+      Value: !Ref AsanaAccessToken
 
   AsanaProjectIdParam:
     Type: AWS::SSM::Parameter
@@ -106,7 +129,7 @@ Resources:
         Environment: !Ref ApplicationEnvironment
         Application: !Ref ApplicationName
       Type: String
-      Value: "2014-01-01T00:00:00Z"
+      Value: !FindInMap [Asana, ProjectId, !Ref Environment]
 
   AsanaSectionIdParam:
     Type: AWS::SSM::Parameter
@@ -117,7 +140,7 @@ Resources:
         Environment: !Ref ApplicationEnvironment
         Application: !Ref ApplicationName
       Type: String
-      Value: "2014-01-01T00:00:00Z"
+      Value: !FindInMap [Asana, SectionId, !Ref Environment]
 
   DigitizationTasksFunction:
     Type: AWS::Lambda::Function
