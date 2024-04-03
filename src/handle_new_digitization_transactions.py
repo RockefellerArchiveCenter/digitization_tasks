@@ -76,7 +76,7 @@ def task_data(transaction, project_id, section_id):
     """Formats initial task data."""
     return {
         "completed": False,
-        "name": transaction['transactionNumber'],
+        "name": transaction['TransactionNumber'],
         "projects": [project_id],
         "memberships": [
             {
@@ -102,7 +102,7 @@ def main(event=None, context=None):
 
     new_transaction_url = f"/odata/Requests?$filter=transactionstatus eq {config.get('AEON_STATUS_CODE')} and creationddate gt {last_run_datetime}"
     transaction_list = aeon_client.get(new_transaction_url).json()
-    for transaction in transaction_list:
+    for transaction in transaction_list['value']:
         asana_client.tasks.create_task(
             task_data(
                 transaction,
