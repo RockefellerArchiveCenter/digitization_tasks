@@ -79,7 +79,7 @@ def test_main(mock_set_datetime, mock_asana_client,
     last_run_datetime = "2024-01-01T12:00:00Z"
     mock_get_config.return_value = {
         'AEON_ACCESS_TOKEN': '123456',
-        'AEON_BASEURL': 'https://raccess.rockarch.org/aeon/api',
+        'AEON_BASEURL': 'https://raccess.rockarch.org/aeonapi',
         'AEON_STATUS_CODE': status_code,
         'ASANA_ACCESS_TOKEN': '654321',
         'ASANA_PROJECT_ID': project_id,
@@ -96,7 +96,7 @@ def test_main(mock_set_datetime, mock_asana_client,
 
     mock_get_config.assert_called_with('/dev/digitization_tasks')
     mock_get_transactions.assert_called_once_with(
-        f'/odata/Requests?$filter=transactionstatus eq {status_code} and creationddate gt {last_run_datetime}')
+        f'/odata/Requests?$filter=transactionstatus eq {status_code} and creationdate gt {last_run_datetime}')
     assert mock_asana_client.call_count == 2
     expected_calls = [
         call('/tasks',
