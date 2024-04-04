@@ -80,7 +80,7 @@ def task_data(transaction, project_id, section_id):
     lowercased = {k.lower(): v for k, v in transaction.items()}
     return {
         "completed": False,
-        "name": lowercased['transactionnumber'],
+        "name": str(lowercased['transactionnumber']),
         "projects": [project_id],
         "memberships": [
             {

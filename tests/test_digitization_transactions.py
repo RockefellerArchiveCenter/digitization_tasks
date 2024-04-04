@@ -31,7 +31,7 @@ def test_task_data():
                        project_id, section_id)
     assert output == {
         "completed": False,
-        "name": transaction_number,
+        "name": f"{transaction_number}",
         "projects": [project_id],
         "memberships": [
             {
@@ -101,13 +101,13 @@ def test_main(mock_set_datetime, mock_asana_client,
     expected_calls = [
         call('/tasks',
              {'completed': False,
-              'name': 1,
+              'name': "1",
               'projects': [project_id],
               'memberships': [{'project': project_id,
                                'section': section_id}]}),
         call('/tasks',
              {'completed': False,
-              'name': 2,
+              'name': "2",
               'projects': [project_id],
               'memberships': [{'project': project_id,
                                'section': section_id}]})
