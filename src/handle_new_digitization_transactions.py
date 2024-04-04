@@ -38,7 +38,8 @@ def set_last_run_datetime(datetime_str, config_path):
     ssm_client.put_parameter(
         Name=f'{config_path}/LAST_RUN_DATETIME',
         Value=datetime_str,
-        Type="String"
+        Type="String",
+        Overwrite=True
     )
 
 
@@ -103,7 +104,7 @@ def main(event=None, context=None):
     asana_client.headers = {
         'asana-enable': 'new_user_task_lists,new_project_templates,new_goal_memberships'}
 
-    new_transaction_url = f"/odata/Requests?$filter=transactionstatus eq {config.get('AEON_STATUS_CODE')} and creationddate gt {last_run_datetime}"
+    new_transaction_url = f"/odata/Requests?$filter=transactionstatus eq {config.get('AEON_STATUS_CODE')} and creationdate gt {last_run_datetime}"
     transaction_list = aeon_client.get(new_transaction_url).json()
     for transaction in transaction_list['value']:
         asana_client.tasks.create_task(
