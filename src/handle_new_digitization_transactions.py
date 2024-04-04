@@ -74,9 +74,10 @@ def get_config(ssm_parameter_path):
 
 def task_data(transaction, project_id, section_id):
     """Formats initial task data."""
+    lowercased = {k.lower(): v for k, v in transaction.items()}
     return {
         "completed": False,
-        "name": transaction['TransactionNumber'],
+        "name": lowercased['transactionnumber'],
         "projects": [project_id],
         "memberships": [
             {

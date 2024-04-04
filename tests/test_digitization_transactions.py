@@ -86,8 +86,11 @@ def test_main(mock_set_datetime, mock_asana_client,
         'ASANA_SECTION_ID': section_id,
         'LAST_RUN_DATETIME': last_run_datetime
     }
-    mock_get_transactions.return_value.json.return_value = [
-        {"transactionNumber": 1}, {"transactionNumber": 2}]
+    mock_get_transactions.return_value.json.return_value = {
+        "value": [
+            {"TransactionNumber": 1}, {"transactionNumber": 2}
+        ]
+    }
 
     main()
 
