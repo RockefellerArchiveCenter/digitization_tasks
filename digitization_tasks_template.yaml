@@ -32,8 +32,8 @@ Mappings:
       dev: 'https://raccess.rockarch.org/aeonapi'
       prod: https://raccess.rockarch.org/aeonapi'
     StatusCode:
-      dev: 40
-      prod: 40
+      dev: 9
+      prod: 9
   Asana:
     ProjectId:
       dev: 1206971441441570
