@@ -15,10 +15,6 @@ import boto3
 from asana import Client
 from requests import Session
 
-ssm_client = boto3.client(
-    'ssm',
-    region_name=environ.get('AWS_DEFAULT_REGION', 'us-east-1'))
-
 
 class AeonClient(object):
     def __init__(self, baseurl, access_key):
@@ -36,6 +32,9 @@ class AeonClient(object):
 
 
 def set_last_run_datetime(datetime_str, config_path):
+    ssm_client = boto3.client(
+        'ssm',
+        region_name=environ.get('AWS_DEFAULT_REGION', 'us-east-1'))
     ssm_client.put_parameter(
         Name=f'{config_path}/LAST_RUN_DATETIME',
         Value=datetime_str,
@@ -53,6 +52,9 @@ def get_config(ssm_parameter_path):
         configuration (dict): all parameters found at the supplied path.
     """
     configuration = {}
+    ssm_client = boto3.client(
+        'ssm',
+        region_name=environ.get('AWS_DEFAULT_REGION', 'us-east-1'))
     try:
         param_details = ssm_client.get_parameters_by_path(
             Path=ssm_parameter_path,
