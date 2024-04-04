@@ -22,7 +22,7 @@ deploy:
     script: >-
       bash deploy_scripts/upload_file_to_s3.sh ${LAMBDA_NAME}.zip rac-dev-lambda &&
       bash deploy_scripts/deploy_package_lambda.sh ${LAMBDA_NAME} &&
-      bash deploy_scripts/upload_file_to_s3.sh ${LAMBDA_NAME}_template.yaml rac-dev-cloudform-apps/${LAMBDA_NAME}
+      bash deploy_scripts/upload_file_to_s3.sh ${LAMBDA_NAME}_template.yaml rac-dev-cloudformation-apps/${LAMBDA_NAME}
     skip_cleanup: true
     on:
       branch: development
