@@ -37,13 +37,13 @@ Mappings:
   Asana:
     ProjectId:
       dev: 1206971441441570
-      prod:
+      prod: 1206971441441570
     SectionId:
       dev: 1206971441441575
-      prod:
+      prod: 1206971441441575
 
 Resources:
-  DigitizationTasksRunctionRole:
+  DigitizationTasksFunctionRole:
     Type: AWS::IAM::Role
     Properties: 
       AssumeRolePolicyDocument:
@@ -87,7 +87,7 @@ Resources:
       Tags: 
         Environment: !Ref ApplicationEnvironment
         Application: !Ref ApplicationName
-      Type: SecureString
+      Type: String
       Value: !Ref AeonAccessToken
 
   AeonBaseUrlParam:
@@ -99,7 +99,7 @@ Resources:
         Environment: !Ref ApplicationEnvironment
         Application: !Ref ApplicationName
       Type: String
-      Value: !FindInMap [Aeon, BaseUrl, !Ref Environment]
+      Value: !FindInMap [Aeon, BaseUrl, !Ref ApplicationEnvironment]
 
   AeonStatusCodeParam:
     Type: AWS::SSM::Parameter
@@ -110,7 +110,7 @@ Resources:
         Environment: !Ref ApplicationEnvironment
         Application: !Ref ApplicationName
       Type: String
-      Value: !FindInMap [Aeon, StatusCode, !Ref Environment]
+      Value: !FindInMap [Aeon, StatusCode, !Ref ApplicationEnvironment]
 
   AsanaAccessTokenParam:
     Type: AWS::SSM::Parameter
@@ -120,7 +120,7 @@ Resources:
       Tags: 
         Environment: !Ref ApplicationEnvironment
         Application: !Ref ApplicationName
-      Type: SecureString
+      Type: String
       Value: !Ref AsanaAccessToken
 
   AsanaProjectIdParam:
@@ -132,7 +132,7 @@ Resources:
         Environment: !Ref ApplicationEnvironment
         Application: !Ref ApplicationName
       Type: String
-      Value: !FindInMap [Asana, ProjectId, !Ref Environment]
+      Value: !FindInMap [Asana, ProjectId, !Ref ApplicationEnvironment]
 
   AsanaSectionIdParam:
     Type: AWS::SSM::Parameter
@@ -143,7 +143,7 @@ Resources:
         Environment: !Ref ApplicationEnvironment
         Application: !Ref ApplicationName
       Type: String
-      Value: !FindInMap [Asana, SectionId, !Ref Environment]
+      Value: !FindInMap [Asana, SectionId, !Ref ApplicationEnvironment]
 
   DigitizationTasksFunction:
     Type: AWS::Lambda::Function
@@ -174,22 +174,20 @@ Resources:
     Type: AWS::Events::Rule
     Properties:
       Description: "Triggers every five minutes"
-      EventPattern: Json
       Name: every_five_minutes
-      RoleArn: 
-      ScheduleExpression: cron(0/5 12-22 ? * MON-FRI *)
-      State: ENABLED
+      ScheduleExpression: "cron(0/5 12-22 ? * MON-FRI *)"
+      State: "ENABLED"
       Targets: 
         - Arn: !GetAtt DigitizationTasksFunction.Arn
           Id: "DigitizationTasks"
 
   DigitizationTasksEventRulePermission: 
-  Type: AWS::Lambda::Permission
-  Properties: 
-    FunctionName: !Ref DigitizationTasksFunction
-    Action: "lambda:InvokeFunction"
-    Principal: "events.amazonaws.com"
-    SourceArn: !GetAtt DigitizationTasksEventRule.Arn
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref DigitizationTasksFunction
+      Action: "lambda:InvokeFunction"
+      Principal: "events.amazonaws.com"
+      SourceArn: !GetAtt DigitizationTasksEventRule.Arn
 
   DigitizationTasksLogGroup:
     Type: AWS::Logs::LogGroup
