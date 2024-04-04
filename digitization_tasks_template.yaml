@@ -156,7 +156,7 @@ Resources:
       Handler: handle_new_digitization_transactions.main
       Role: !GetAtt DigitizationTasksFunctionRole.Arn
       Runtime: python3.11
-      Timeout: 10
+      Timeout: 270
       Environment:
         Variables:
           ENV:
