@@ -154,7 +154,7 @@ Resources:
       FunctionName: !Ref ApplicationName
       Handler: handle_new_digitization_transactions.main
       Role: !GetAtt DigitizationTasksFunctionRole.Arn
-      Runtime: python3.12
+      Runtime: python3.11
       Timeout: 10
       Environment:
         Variables:
@@ -188,6 +188,13 @@ Resources:
       Action: "lambda:InvokeFunction"
       Principal: "events.amazonaws.com"
       SourceArn: !GetAtt DigitizationTasksEventRule.Arn
+
+  DigitizationTasksTravisEcRPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref DigitizationTasksFunction
+      Action: "lambda:UpdateFunctionCode"
+      Principal: "arn:aws:iam::817658541382:user/TravisECR"
 
   DigitizationTasksLogGroup:
     Type: AWS::Logs::LogGroup
