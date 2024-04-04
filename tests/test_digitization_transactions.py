@@ -73,7 +73,7 @@ def test_config():
 def test_main(mock_set_datetime, mock_asana_client,
               mock_get_transactions, mock_get_config):
     """Test that all methods are called with correct arguments."""
-    status_code = 32
+    status_code = 9
     project_id = 123456
     section_id = 123
     last_run_datetime = "2024-01-01T12:00:00Z"
@@ -96,7 +96,7 @@ def test_main(mock_set_datetime, mock_asana_client,
 
     mock_get_config.assert_called_with('/dev/digitization_tasks')
     mock_get_transactions.assert_called_once_with(
-        f'/odata/Requests?$filter=transactionstatus eq {status_code} and creationdate gt {last_run_datetime}')
+        f'/odata/Requests?$filter=photoduplicationstatus eq {status_code} and creationdate gt {last_run_datetime}')
     assert mock_asana_client.call_count == 2
     expected_calls = [
         call('/tasks',
