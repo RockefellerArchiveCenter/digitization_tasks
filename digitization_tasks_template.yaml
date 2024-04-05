@@ -31,9 +31,12 @@ Mappings:
     BaseUrl:
       dev: 'https://raccess.rockarch.org/aeonapi'
       prod: https://raccess.rockarch.org/aeonapi'
-    StatusCode:
+    PhotoduplicationStatus:
       dev: 9
       prod: 9
+    TransactionStatus:
+      dev: 22
+      prod: 22
   Asana:
     ProjectId:
       dev: 1206971441441570
@@ -102,16 +105,27 @@ Resources:
       Type: String
       Value: !FindInMap [Aeon, BaseUrl, !Ref ApplicationEnvironment]
 
-  AeonStatusCodeParam:
+  AeonPhotoduplicationStatusCodeParam:
     Type: AWS::SSM::Parameter
     Properties: 
-      Description: Status code for new transactions.
-      Name: !Sub /${ApplicationEnvironment}/${ApplicationName}/AEON_STATUS_CODE
+      Description: Photoduplication status code for new transactions.
+      Name: !Sub /${ApplicationEnvironment}/${ApplicationName}/AEON_PHOTODUPLICATION_STATUS
       Tags: 
         Environment: !Ref ApplicationEnvironment
         Application: !Ref ApplicationName
       Type: String
-      Value: !FindInMap [Aeon, StatusCode, !Ref ApplicationEnvironment]
+      Value: !FindInMap [Aeon, PhotoduplicationStatus, !Ref ApplicationEnvironment]
+  
+  AeonTransactionStatusCodeParam:
+    Type: AWS::SSM::Parameter
+    Properties: 
+      Description: Transaction status code for new transactions.
+      Name: !Sub /${ApplicationEnvironment}/${ApplicationName}/AEON_TRANSACTION_STATUS
+      Tags: 
+        Environment: !Ref ApplicationEnvironment
+        Application: !Ref ApplicationName
+      Type: String
+      Value: !FindInMap [Aeon, TransactionStatus, !Ref ApplicationEnvironment]
 
   AsanaAccessTokenParam:
     Type: AWS::SSM::Parameter

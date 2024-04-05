@@ -104,7 +104,7 @@ def main(event=None, context=None):
     asana_client.headers = {
         'asana-enable': 'new_user_task_lists,new_project_templates,new_goal_memberships'}
 
-    new_transaction_url = f"/odata/Requests?$filter=photoduplicationstatus eq {config.get('AEON_STATUS_CODE')} and creationdate gt {last_run_datetime}"
+    new_transaction_url = f"/odata/Requests?$filter=photoduplicationstatus eq {config.get('AEON_PHOTODUPLICATION_STATUS')} and transactionstatus eq {config.get('AEON_TRANSACTION_STATUS')} and creationdate gt {last_run_datetime}"
     transaction_list = aeon_client.get(new_transaction_url).json()
     for transaction in transaction_list['value']:
         asana_client.tasks.create_task(
