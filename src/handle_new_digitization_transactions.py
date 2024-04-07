@@ -15,10 +15,6 @@ import boto3
 from asana import Client
 from requests import Session
 
-ssm_client = boto3.client(
-    'ssm',
-    region_name=environ.get('AWS_DEFAULT_REGION', 'us-east-1'))
-
 
 class AeonClient(object):
     def __init__(self, baseurl, access_key):
@@ -36,10 +32,14 @@ class AeonClient(object):
 
 
 def set_last_run_datetime(datetime_str, config_path):
+    ssm_client = boto3.client(
+        'ssm',
+        region_name=environ.get('AWS_DEFAULT_REGION', 'us-east-1'))
     ssm_client.put_parameter(
         Name=f'{config_path}/LAST_RUN_DATETIME',
         Value=datetime_str,
-        Type="String"
+        Type="String",
+        Overwrite=True
     )
 
 
@@ -53,6 +53,9 @@ def get_config(ssm_parameter_path):
         configuration (dict): all parameters found at the supplied path.
     """
     configuration = {}
+    ssm_client = boto3.client(
+        'ssm',
+        region_name=environ.get('AWS_DEFAULT_REGION', 'us-east-1'))
     try:
         param_details = ssm_client.get_parameters_by_path(
             Path=ssm_parameter_path,
@@ -74,9 +77,10 @@ def get_config(ssm_parameter_path):
 
 def task_data(transaction, project_id, section_id):
     """Formats initial task data."""
+    lowercased = {k.lower(): v for k, v in transaction.items()}
     return {
         "completed": False,
-        "name": transaction['TransactionNumber'],
+        "name": str(lowercased['transactionnumber']),
         "projects": [project_id],
         "memberships": [
             {
@@ -100,7 +104,7 @@ def main(event=None, context=None):
     asana_client.headers = {
         'asana-enable': 'new_user_task_lists,new_project_templates,new_goal_memberships'}
 
-    new_transaction_url = f"/odata/Requests?$filter=transactionstatus eq {config.get('AEON_STATUS_CODE')} and creationddate gt {last_run_datetime}"
+    new_transaction_url = f"/odata/Requests?$filter=photoduplicationstatus eq {config.get('AEON_PHOTODUPLICATION_STATUS')} and transactionstatus eq {config.get('AEON_TRANSACTION_STATUS')} and creationdate gt {last_run_datetime}"
     transaction_list = aeon_client.get(new_transaction_url).json()
     for transaction in transaction_list['value']:
         asana_client.tasks.create_task(

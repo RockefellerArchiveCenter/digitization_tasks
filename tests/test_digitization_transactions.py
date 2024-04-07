@@ -31,7 +31,7 @@ def test_task_data():
                        project_id, section_id)
     assert output == {
         "completed": False,
-        "name": transaction_number,
+        "name": f"{transaction_number}",
         "projects": [project_id],
         "memberships": [
             {
@@ -73,38 +73,43 @@ def test_config():
 def test_main(mock_set_datetime, mock_asana_client,
               mock_get_transactions, mock_get_config):
     """Test that all methods are called with correct arguments."""
-    status_code = 32
+    photoduplication_status = 9
+    transaction_status = 22
     project_id = 123456
     section_id = 123
     last_run_datetime = "2024-01-01T12:00:00Z"
     mock_get_config.return_value = {
         'AEON_ACCESS_TOKEN': '123456',
-        'AEON_BASEURL': 'https://raccess.rockarch.org/aeon/api',
-        'AEON_STATUS_CODE': status_code,
+        'AEON_BASEURL': 'https://raccess.rockarch.org/aeonapi',
+        'AEON_PHOTODUPLICATION_STATUS': photoduplication_status,
+        'AEON_TRANSACTION_STATUS': transaction_status,
         'ASANA_ACCESS_TOKEN': '654321',
         'ASANA_PROJECT_ID': project_id,
         'ASANA_SECTION_ID': section_id,
         'LAST_RUN_DATETIME': last_run_datetime
     }
-    mock_get_transactions.return_value.json.return_value = [
-        {"transactionNumber": 1}, {"transactionNumber": 2}]
+    mock_get_transactions.return_value.json.return_value = {
+        "value": [
+            {"TransactionNumber": 1}, {"transactionNumber": 2}
+        ]
+    }
 
     main()
 
     mock_get_config.assert_called_with('/dev/digitization_tasks')
     mock_get_transactions.assert_called_once_with(
-        f'/odata/Requests?$filter=transactionstatus eq {status_code} and creationddate gt {last_run_datetime}')
+        f'/odata/Requests?$filter=photoduplicationstatus eq {photoduplication_status} and transactionstatus eq {transaction_status} and creationdate gt {last_run_datetime}')
     assert mock_asana_client.call_count == 2
     expected_calls = [
         call('/tasks',
              {'completed': False,
-              'name': 1,
+              'name': "1",
               'projects': [project_id],
               'memberships': [{'project': project_id,
                                'section': section_id}]}),
         call('/tasks',
              {'completed': False,
-              'name': 2,
+              'name': "2",
               'projects': [project_id],
               'memberships': [{'project': project_id,
                                'section': section_id}]})

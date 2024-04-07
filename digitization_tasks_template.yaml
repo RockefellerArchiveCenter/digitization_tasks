@@ -31,9 +31,12 @@ Mappings:
     BaseUrl:
       dev: 'https://raccess.rockarch.org/aeonapi'
       prod: https://raccess.rockarch.org/aeonapi'
-    StatusCode:
-      dev: 40
-      prod: 40
+    PhotoduplicationStatus:
+      dev: 9
+      prod: 9
+    TransactionStatus:
+      dev: 22
+      prod: 22
   Asana:
     ProjectId:
       dev: 1206971441441570
@@ -66,6 +69,7 @@ Resources:
               - Effect: Allow
                 Action: 
                   - 'ssm:GetParametersByPath*'
+                  - 'ssm:PutParameter'
                 Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${ApplicationEnvironment}/${ApplicationName}*'
  
   LastRunParam:
@@ -101,16 +105,27 @@ Resources:
       Type: String
       Value: !FindInMap [Aeon, BaseUrl, !Ref ApplicationEnvironment]
 
-  AeonStatusCodeParam:
+  AeonPhotoduplicationStatusCodeParam:
     Type: AWS::SSM::Parameter
     Properties: 
-      Description: Status code for new transactions.
-      Name: !Sub /${ApplicationEnvironment}/${ApplicationName}/AEON_STATUS_CODE
+      Description: Photoduplication status code for new transactions.
+      Name: !Sub /${ApplicationEnvironment}/${ApplicationName}/AEON_PHOTODUPLICATION_STATUS
       Tags: 
         Environment: !Ref ApplicationEnvironment
         Application: !Ref ApplicationName
       Type: String
-      Value: !FindInMap [Aeon, StatusCode, !Ref ApplicationEnvironment]
+      Value: !FindInMap [Aeon, PhotoduplicationStatus, !Ref ApplicationEnvironment]
+  
+  AeonTransactionStatusCodeParam:
+    Type: AWS::SSM::Parameter
+    Properties: 
+      Description: Transaction status code for new transactions.
+      Name: !Sub /${ApplicationEnvironment}/${ApplicationName}/AEON_TRANSACTION_STATUS
+      Tags: 
+        Environment: !Ref ApplicationEnvironment
+        Application: !Ref ApplicationName
+      Type: String
+      Value: !FindInMap [Aeon, TransactionStatus, !Ref ApplicationEnvironment]
 
   AsanaAccessTokenParam:
     Type: AWS::SSM::Parameter
@@ -154,8 +169,8 @@ Resources:
       FunctionName: !Ref ApplicationName
       Handler: handle_new_digitization_transactions.main
       Role: !GetAtt DigitizationTasksFunctionRole.Arn
-      Runtime: python3.12
-      Timeout: 10
+      Runtime: python3.11
+      Timeout: 270
       Environment:
         Variables:
           ENV:
@@ -188,6 +203,13 @@ Resources:
       Action: "lambda:InvokeFunction"
       Principal: "events.amazonaws.com"
       SourceArn: !GetAtt DigitizationTasksEventRule.Arn
+
+  DigitizationTasksTravisEcRPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref DigitizationTasksFunction
+      Action: "lambda:UpdateFunctionCode"
+      Principal: "arn:aws:iam::817658541382:user/TravisECR"
 
   DigitizationTasksLogGroup:
     Type: AWS::Logs::LogGroup
