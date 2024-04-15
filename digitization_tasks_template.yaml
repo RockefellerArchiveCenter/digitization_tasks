@@ -30,7 +30,7 @@ Mappings:
   Aeon:
     BaseUrl:
       dev: 'https://raccess.rockarch.org/aeonapi'
-      prod: https://raccess.rockarch.org/aeonapi'
+      prod: 'https://raccess.rockarch.org/aeonapi'
     PhotoduplicationStatus:
       dev: 9
       prod: 9

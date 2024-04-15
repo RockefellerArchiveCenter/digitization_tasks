@@ -98,7 +98,7 @@ def test_main(mock_set_datetime, mock_asana_client,
 
     mock_get_config.assert_called_with('/dev/digitization_tasks')
     mock_get_transactions.assert_called_once_with(
-        f'/odata/Requests?$filter=photoduplicationstatus eq {photoduplication_status} and transactionstatus eq {transaction_status} and creationdate gt {last_run_datetime}')
+        f'/odata/Requests?$filter=photoduplicationstatus eq {photoduplication_status} and transactionstatus eq {transaction_status} and lastmodifiedtime gt {last_run_datetime}')
     assert mock_asana_client.call_count == 2
     expected_calls = [
         call('/tasks',
