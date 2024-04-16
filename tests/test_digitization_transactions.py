@@ -25,7 +25,7 @@ def test_task_data():
     transaction_number = 123456
     project_id = 654321
     section_id = 123
-    output = task_data({"transactionNumber": transaction_number},
+    output = task_data({"transactionnumber": transaction_number},
                        project_id, section_id)
     assert output == {
         "completed": False,
@@ -77,7 +77,7 @@ def test_main(mock_asana_client, mock_get_transactions,
     mock_get_task_names.return_value = ["3", "4"]
     mock_get_transactions.return_value.json.return_value = {
         "value": [
-            {"transactionNumber": 1}, {"transactionNumber": 2}
+            {"TransactionNumber": 1}, {"transactionNumber": 2}
         ]
     }
 
