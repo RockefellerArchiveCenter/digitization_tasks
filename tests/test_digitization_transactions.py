@@ -5,9 +5,7 @@ from moto import mock_ssm
 from requests import Session
 
 from src.handle_new_digitization_transactions import (AeonClient, get_config,
-                                                      main,
-                                                      set_last_run_datetime,
-                                                      task_data)
+                                                      main, task_data)
 
 
 def test_aeon_client():
@@ -43,16 +41,6 @@ def test_task_data():
 
 
 @mock_ssm
-def test_set_last_run_datetime():
-    """Tests that LAST_RUN_DATETIME param is set as expected."""
-    datetime_str = "2024-01-01T12:00:00Z"
-    path = "/dev/digitization_tasks"
-    set_last_run_datetime(datetime_str, path)
-    config = get_config(path)
-    assert config['LAST_RUN_DATETIME'] == datetime_str
-
-
-@mock_ssm
 def test_config():
     ssm = boto3.client('ssm', region_name='us-east-1')
     path = "/dev/digitization_tasks"
@@ -67,17 +55,16 @@ def test_config():
 
 
 @patch('src.handle_new_digitization_transactions.get_config')
+@patch('src.handle_new_digitization_transactions.get_task_names')
 @patch('src.handle_new_digitization_transactions.AeonClient.get')
 @patch('asana.client.Client.post')
-@patch('src.handle_new_digitization_transactions.set_last_run_datetime')
-def test_main(mock_set_datetime, mock_asana_client,
-              mock_get_transactions, mock_get_config):
+def test_main(mock_asana_client, mock_get_transactions,
+              mock_get_task_names, mock_get_config):
     """Test that all methods are called with correct arguments."""
     photoduplication_status = 9
     transaction_status = 22
     project_id = 123456
     section_id = 123
-    last_run_datetime = "2024-01-01T12:00:00Z"
     mock_get_config.return_value = {
         'AEON_ACCESS_TOKEN': '123456',
         'AEON_BASEURL': 'https://raccess.rockarch.org/aeonapi',
@@ -86,11 +73,11 @@ def test_main(mock_set_datetime, mock_asana_client,
         'ASANA_ACCESS_TOKEN': '654321',
         'ASANA_PROJECT_ID': project_id,
         'ASANA_SECTION_ID': section_id,
-        'LAST_RUN_DATETIME': last_run_datetime
     }
+    mock_get_task_names.return_value = ["3", "4"]
     mock_get_transactions.return_value.json.return_value = {
         "value": [
-            {"TransactionNumber": 1}, {"transactionNumber": 2}
+            {"transactionNumber": 1}, {"transactionNumber": 2}
         ]
     }
 
@@ -98,7 +85,7 @@ def test_main(mock_set_datetime, mock_asana_client,
 
     mock_get_config.assert_called_with('/dev/digitization_tasks')
     mock_get_transactions.assert_called_once_with(
-        f'/odata/Requests?$filter=photoduplicationstatus eq {photoduplication_status} and transactionstatus eq {transaction_status} and lastmodifiedtime gt {last_run_datetime}')
+        f'/odata/Requests?$filter=photoduplicationstatus eq {photoduplication_status} and transactionstatus eq {transaction_status}')
     assert mock_asana_client.call_count == 2
     expected_calls = [
         call('/tasks',
@@ -115,4 +102,4 @@ def test_main(mock_set_datetime, mock_asana_client,
                                'section': section_id}]})
     ]
     mock_asana_client.assert_has_calls(expected_calls)
-    mock_set_datetime.assert_called_once()
+    mock_get_task_names.assert_called_once()
