@@ -21,10 +21,6 @@ Parameters:
   AsanaAccessToken:
     Type: String
     Description: Access token for Asana.
-  LastRunDatetime:
-    Type: String
-    Description: Datetime string at which script was last run.
-    Default: "2022-01-01T00:00:00Z"
 
 Mappings:
   Aeon:
@@ -71,17 +67,6 @@ Resources:
                   - 'ssm:GetParametersByPath*'
                   - 'ssm:PutParameter'
                 Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${ApplicationEnvironment}/${ApplicationName}*'
- 
-  LastRunParam:
-    Type: AWS::SSM::Parameter
-    Properties: 
-      Description: Datetime string representing the last time this script was executed.
-      Name: !Sub /${ApplicationEnvironment}/${ApplicationName}/LAST_RUN_DATETIME
-      Tags: 
-        Environment: !Ref ApplicationEnvironment
-        Application: !Ref ApplicationName
-      Type: String
-      Value: !Ref LastRunDatetime
 
   AeonAccessTokenParam:
     Type: AWS::SSM::Parameter

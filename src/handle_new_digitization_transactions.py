@@ -8,7 +8,6 @@ Requires encrypted environment variables:
 """
 
 import traceback
-from datetime import datetime
 from os import environ
 
 import boto3
@@ -29,18 +28,6 @@ class AeonClient(object):
     def get(self, url):
         full_url = "/".join([self.baseurl.rstrip("/"), url.lstrip("/")])
         return self.session.get(full_url)
-
-
-def set_last_run_datetime(datetime_str, config_path):
-    ssm_client = boto3.client(
-        'ssm',
-        region_name=environ.get('AWS_DEFAULT_REGION', 'us-east-1'))
-    ssm_client.put_parameter(
-        Name=f'{config_path}/LAST_RUN_DATETIME',
-        Value=datetime_str,
-        Type="String",
-        Overwrite=True
-    )
 
 
 def get_config(ssm_parameter_path):
@@ -77,10 +64,9 @@ def get_config(ssm_parameter_path):
 
 def task_data(transaction, project_id, section_id):
     """Formats initial task data."""
-    lowercased = {k.lower(): v for k, v in transaction.items()}
     return {
         "completed": False,
-        "name": str(lowercased['transactionnumber']),
+        "name": str(transaction['transactionNumber']),
         "projects": [project_id],
         "memberships": [
             {
@@ -91,11 +77,16 @@ def task_data(transaction, project_id, section_id):
     }
 
 
+def get_task_names(asana_client, project_gid):
+    """Returns a list of task names for all tasks in a project."""
+    tasks = asana_client.tasks.get_tasks_for_project(project_gid)
+    return list(t['name'] for t in tasks)
+
+
 def main(event=None, context=None):
     task_count = 0
     full_config_path = f"/{environ.get('ENV')}/{environ.get('APP_CONFIG_PATH')}"
     config = get_config(full_config_path)
-    last_run_datetime = config.get('LAST_RUN_DATETIME')
     aeon_client = AeonClient(
         config.get("AEON_BASEURL"),
         config.get("AEON_ACCESS_TOKEN"))
@@ -104,21 +95,23 @@ def main(event=None, context=None):
     asana_client.headers = {
         'asana-enable': 'new_user_task_lists,new_project_templates,new_goal_memberships'}
 
-    new_transaction_url = f"/odata/Requests?$filter=photoduplicationstatus eq {config.get('AEON_PHOTODUPLICATION_STATUS')} and transactionstatus eq {config.get('AEON_TRANSACTION_STATUS')} and lastmodifiedtime gt {last_run_datetime}"
+    existing_tasks = get_task_names(
+        asana_client, config.get('ASANA_PROJECT_ID'))
+
+    new_transaction_url = f"/odata/Requests?$filter=photoduplicationstatus eq {config.get('AEON_PHOTODUPLICATION_STATUS')} and transactionstatus eq {config.get('AEON_TRANSACTION_STATUS')}"
     transaction_list = aeon_client.get(new_transaction_url).json()
     for transaction in transaction_list['value']:
-        asana_client.tasks.create_task(
-            task_data(
-                transaction,
-                config.get('ASANA_PROJECT_ID'),
-                config.get('ASANA_SECTION_ID'))
-        )
-        task_count += 1
+        if str(transaction['transactionNumber']) not in existing_tasks:
+            asana_client.tasks.create_task(
+                task_data(
+                    transaction,
+                    config.get('ASANA_PROJECT_ID'),
+                    config.get('ASANA_SECTION_ID'))
+            )
+            task_count += 1
 
-    label = "task" if task_count == 1 else "tasks"
-    print(f"{task_count} {label} created")
-    set_last_run_datetime(datetime.now().strftime(
-        "%Y-%m-%dT%H:%M:%SZ"), full_config_path)
+    unit_label = "task" if task_count == 1 else "tasks"
+    print(f"{task_count} {unit_label} created")
     return task_count
 
 
