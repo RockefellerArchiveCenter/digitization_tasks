@@ -101,7 +101,8 @@ def main(event=None, context=None):
     new_transaction_url = f"/odata/Requests?$filter=photoduplicationstatus eq {config.get('AEON_PHOTODUPLICATION_STATUS')} and transactionstatus eq {config.get('AEON_TRANSACTION_STATUS')}"
     transaction_list = aeon_client.get(new_transaction_url).json()
     for transaction in transaction_list['value']:
-        if str(transaction['transactionNumber']) not in existing_tasks:
+        lowercase = {k.lower(): v for k, v in transaction.items()}
+        if str(lowercase['transactionnumber']) not in existing_tasks:
             asana_client.tasks.create_task(
                 task_data(
                     transaction,
