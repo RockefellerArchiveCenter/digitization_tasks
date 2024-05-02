@@ -173,9 +173,9 @@ Resources:
   DigitizationTasksEventRule:
     Type: AWS::Events::Rule
     Properties:
-      Description: "Triggers every five minutes"
-      Name: every_five_minutes
-      ScheduleExpression: "cron(0/5 12-22 ? * MON-FRI *)"
+      Description: "Triggers every hour"
+      Name: every_hour
+      ScheduleExpression: "cron(0 12-22 ? * MON-FRI *)"
       State: "ENABLED"
       Targets: 
         - Arn: !GetAtt DigitizationTasksFunction.Arn
