@@ -14,7 +14,7 @@ idna==3.7
     # via requests
 oauthlib==3.2.2
     # via requests-oauthlib
-requests==2.31.0
+requests==2.32.3
     # via
     #   asana
     #   requests-oauthlib
