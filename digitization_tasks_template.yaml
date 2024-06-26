@@ -33,13 +33,22 @@ Mappings:
     TransactionStatus:
       dev: 22
       prod: 22
+    BillingStatus:
+      dev: 21
+      prod: 21
   Asana:
     ProjectId:
       dev: 1206971441441570
       prod: 1206971441441570
-    SectionId:
+    UnclaimedSectionId:
       dev: 1206971441441575
       prod: 1206971441441575
+    BillingSectionId:
+      dev: 1207658380417124
+      prod: 1207658380417124
+    WorkspaceId:
+      dev: 4711715224923
+      prod: 4711715224923
 
 Resources:
   DigitizationTasksFunctionRole:
@@ -111,6 +120,17 @@ Resources:
         Application: !Ref ApplicationName
       Type: String
       Value: !FindInMap [Aeon, TransactionStatus, !Ref ApplicationEnvironment]
+  
+  AeonBillingStatusCodeParam:
+    Type: AWS::SSM::Parameter
+    Properties: 
+      Description: Transaction status code for transactions awaiting payment.
+      Name: !Sub /${ApplicationEnvironment}/${ApplicationName}/AEON_BILLING_STATUS
+      Tags: 
+        Environment: !Ref ApplicationEnvironment
+        Application: !Ref ApplicationName
+      Type: String
+      Value: !FindInMap [Aeon, BillingStatus, !Ref ApplicationEnvironment]
 
   AsanaAccessTokenParam:
     Type: AWS::SSM::Parameter
@@ -134,16 +154,38 @@ Resources:
       Type: String
       Value: !FindInMap [Asana, ProjectId, !Ref ApplicationEnvironment]
 
-  AsanaSectionIdParam:
+  AsanaUnclaimedSectionIdParam:
     Type: AWS::SSM::Parameter
     Properties: 
       Description: Asana section ID under which new tasks should be created.
-      Name: !Sub /${ApplicationEnvironment}/${ApplicationName}/ASANA_SECTION_ID
+      Name: !Sub /${ApplicationEnvironment}/${ApplicationName}/ASANA_UNCLAIMED_SECTION_ID
       Tags: 
         Environment: !Ref ApplicationEnvironment
         Application: !Ref ApplicationName
       Type: String
-      Value: !FindInMap [Asana, SectionId, !Ref ApplicationEnvironment]
+      Value: !FindInMap [Asana, UnclaimedSectionId, !Ref ApplicationEnvironment]
+
+  AsanaBillingSectionIdParam:
+    Type: AWS::SSM::Parameter
+    Properties: 
+      Description: Asana section ID for tasks waiting to be billed.
+      Name: !Sub /${ApplicationEnvironment}/${ApplicationName}/ASANA_BILLING_SECTION_ID
+      Tags: 
+        Environment: !Ref ApplicationEnvironment
+        Application: !Ref ApplicationName
+      Type: String
+      Value: !FindInMap [Asana, BillingSectionId, !Ref ApplicationEnvironment]
+
+  AsanaWorkspaceIdParam:
+    Type: AWS::SSM::Parameter
+    Properties: 
+      Description: Asana workspace ID.
+      Name: !Sub /${ApplicationEnvironment}/${ApplicationName}/ASANA_WORKSPACE_ID
+      Tags: 
+        Environment: !Ref ApplicationEnvironment
+        Application: !Ref ApplicationName
+      Type: String
+      Value: !FindInMap [Asana, WorkspaceId, !Ref ApplicationEnvironment]
 
   DigitizationTasksFunction:
     Type: AWS::Lambda::Function

@@ -10,8 +10,8 @@ Requires encrypted environment variables:
 import traceback
 from os import environ
 
+import asana
 import boto3
-from asana import Client
 from requests import Session
 
 
@@ -28,6 +28,21 @@ class AeonClient(object):
     def get(self, url):
         full_url = "/".join([self.baseurl.rstrip("/"), url.lstrip("/")])
         return self.session.get(full_url)
+
+
+class AsanaClient(object):
+    def __init__(self, access_token):
+        asana_config = asana.Configuration()
+        asana_config.access_token = access_token
+        self.client = asana.ApiClient(asana_config)
+
+    @property
+    def tasks(self):
+        return asana.TasksApi(self.client)
+
+    @property
+    def sections(self):
+        return asana.SectionsApi(self.client)
 
 
 def get_config(ssm_parameter_path):
@@ -77,9 +92,9 @@ def task_data(transaction, project_id, section_id):
     }
 
 
-def get_task_names(asana_client, project_gid):
+def get_task_names(asana_tasks, project_gid):
     """Returns a list of task names for all tasks in a project."""
-    tasks = asana_client.tasks.get_tasks_for_project(project_gid)
+    tasks = asana_tasks.get_tasks_for_project(project_gid)
     return list(t['name'] for t in tasks)
 
 
@@ -90,13 +105,10 @@ def main(event=None, context=None):
     aeon_client = AeonClient(
         config.get("AEON_BASEURL"),
         config.get("AEON_ACCESS_TOKEN"))
-    asana_client = Client.access_token(config.get("ASANA_ACCESS_TOKEN"))
-    # opt-in to deprecation
-    asana_client.headers = {
-        'asana-enable': 'new_user_task_lists,new_project_templates,new_goal_memberships'}
+    asana_client = AsanaClient(config.get("ASANA_ACCESS_TOKEN"))
 
     existing_tasks = get_task_names(
-        asana_client, config.get('ASANA_PROJECT_ID'))
+        asana_client.tasks, config.get('ASANA_PROJECT_ID'))
 
     new_transaction_url = f"/odata/Requests?$filter=photoduplicationstatus eq {config.get('AEON_PHOTODUPLICATION_STATUS')} and transactionstatus eq {config.get('AEON_TRANSACTION_STATUS')}"
     transaction_list = aeon_client.get(new_transaction_url).json()
@@ -108,9 +120,27 @@ def main(event=None, context=None):
                 task_data(
                     lowercase_transaction,
                     config.get('ASANA_PROJECT_ID'),
-                    config.get('ASANA_SECTION_ID'))
+                    config.get('ASANA_UNCLAIMED_SECTION_ID'))
             )
             task_count += 1
+
+    in_billing_url = f"/odata/Requests?$filter=photoduplicationstatus eq {config.get('AEON_BILLING_STATUS')}"
+    transaction_list = aeon_client.get(in_billing_url).json()
+    for transaction in transaction_list['value']:
+        lowercase_transaction = {k.lower(): v for k, v in transaction.items()}
+        result = list(
+            asana_client.tasks.search_tasks_for_workspace(
+                config.get('ASANA_WORKSPACE_ID'),
+                {'text': lowercase_transaction['transactionnumber'], 'opt_fields': 'memberships.section'}))
+        if len(result) != 1:
+            raise Exception(
+                f'Expected 1 result for transaction number {lowercase_transaction["transactionnumber"]} but got {len(result)}')
+        task = result[0]
+        if task['memberships'][0]['section']['gid'] != config.get(
+                'ASANA_BILLING_SECTION_ID'):
+            asana_client.sections.add_task_for_section(
+                config.get('ASANA_BILLING_SECTION_ID'),
+                {'body': {'data': {'task': task['gid']}}})
 
     unit_label = "task" if task_count == 1 else "tasks"
     print(f"{task_count} {unit_label} created")
