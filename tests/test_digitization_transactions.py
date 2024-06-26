@@ -90,7 +90,6 @@ def test_main(mock_asana_sections, mock_asana_tasks, mock_get_transactions,
     }
     mock_asana_tasks.search_tasks_for_workspace.return_value = [
         {"gid": task_id, "memberships": [{"section": {"gid": unclaimed_section_id}}]}]
-    mock_asana_sections.return_value = [{"foo": "bar"}, {"baz": "buzz"}]
 
     main()
 
