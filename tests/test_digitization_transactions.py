@@ -101,7 +101,7 @@ def test_main(mock_asana_sections, mock_asana_tasks, mock_get_transactions,
             f'/odata/Requests?$filter=photoduplicationstatus eq {photoduplication_status} and transactionstatus eq {transaction_status}'),
         call().json(),
         call(
-            f'/odata/Requests?$filter=photoduplicationstatus eq {billing_status}'),
+            f'/odata/Requests?$filter=photoduplicationstatus eq {billing_status} and transactionstatus eq {transaction_status}'),
         call().json()
     ]
     mock_get_transactions.assert_has_calls(expected_calls)
