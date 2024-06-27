@@ -94,7 +94,7 @@ def task_data(transaction, project_id, section_id):
 
 def get_task_names(asana_tasks, project_gid):
     """Returns a list of task names for all tasks in a project."""
-    tasks = asana_tasks.get_tasks_for_project(project_gid)
+    tasks = asana_tasks.get_tasks_for_project(project_gid, {'limit': 50})
     return list(t['name'] for t in tasks)
 
 
