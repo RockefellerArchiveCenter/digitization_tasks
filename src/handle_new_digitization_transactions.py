@@ -124,7 +124,7 @@ def main(event=None, context=None):
             )
             task_count += 1
 
-    in_billing_url = f"/odata/Requests?$filter=photoduplicationstatus eq {config.get('AEON_BILLING_STATUS')}"
+    in_billing_url = f"/odata/Requests?$filter=photoduplicationstatus eq {config.get('AEON_BILLING_STATUS')} and transactionstatus eq {config.get('AEON_TRANSACTION_STATUS')}"
     transaction_list = aeon_client.get(in_billing_url).json()
     for transaction in transaction_list['value']:
         lowercase_transaction = {k.lower(): v for k, v in transaction.items()}
