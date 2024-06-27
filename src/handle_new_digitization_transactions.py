@@ -124,23 +124,25 @@ def main(event=None, context=None):
             )
             task_count += 1
 
-    in_billing_url = f"/odata/Requests?$filter=photoduplicationstatus eq {config.get('AEON_BILLING_STATUS')} and transactionstatus eq {config.get('AEON_TRANSACTION_STATUS')}"
+    in_billing_url = f"/odata/Requests?$filter=photoduplicationstatus eq {config.get('AEON_BILLING_STATUS')}"
     transaction_list = aeon_client.get(in_billing_url).json()
     for transaction in transaction_list['value']:
         lowercase_transaction = {k.lower(): v for k, v in transaction.items()}
         result = list(
             asana_client.tasks.search_tasks_for_workspace(
                 config.get('ASANA_WORKSPACE_ID'),
-                {'text': lowercase_transaction['transactionnumber'], 'opt_fields': 'memberships.section'}))
+                {'text': lowercase_transaction['transactionnumber'],
+                 'projects.all': config.get('ASANA_PROJECT_ID'),
+                 'opt_fields': 'memberships.section'}))
         if len(result) != 1:
             raise Exception(
                 f'Expected 1 result for transaction number {lowercase_transaction["transactionnumber"]} but got {len(result)}')
         task = result[0]
-        # if task['memberships'][0]['section']['gid'] != config.get(
-        #         'ASANA_BILLING_SECTION_ID'):
-        asana_client.sections.add_task_for_section(
-            config.get('ASANA_BILLING_SECTION_ID'),
-            {'body': {'data': {'task': task['gid']}}})
+        if task['memberships'][0]['section']['gid'] != config.get(
+                'ASANA_BILLING_SECTION_ID'):
+            asana_client.sections.add_task_for_section(
+                config.get('ASANA_BILLING_SECTION_ID'),
+                {'body': {'data': {'task': task['gid']}}})
 
     unit_label = "task" if task_count == 1 else "tasks"
     print(f"{task_count} {unit_label} created")
