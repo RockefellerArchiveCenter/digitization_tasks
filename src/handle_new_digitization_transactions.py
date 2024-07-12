@@ -80,15 +80,17 @@ def get_config(ssm_parameter_path):
 def task_data(transaction, project_id, section_id):
     """Formats initial task data."""
     return {
-        "completed": False,
-        "name": str(transaction['transactionnumber']),
-        "projects": [project_id],
-        "memberships": [
-            {
-                "project": project_id,
-                "section": section_id
-            }
-        ]
+        "data": {
+            "completed": False,
+            "name": str(transaction['transactionnumber']),
+            "projects": [project_id],
+            "memberships": [
+                {
+                    "project": project_id,
+                    "section": section_id
+                }
+            ]
+        }
     }
 
 
