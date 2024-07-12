@@ -120,7 +120,8 @@ def main(event=None, context=None):
                 task_data(
                     lowercase_transaction,
                     config.get('ASANA_PROJECT_ID'),
-                    config.get('ASANA_UNCLAIMED_SECTION_ID'))
+                    config.get('ASANA_UNCLAIMED_SECTION_ID')),
+                {}
             )
             task_count += 1
 
