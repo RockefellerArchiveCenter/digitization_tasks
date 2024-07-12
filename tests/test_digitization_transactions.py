@@ -125,11 +125,11 @@ def test_main(mock_asana_sections, mock_asana_tasks, mock_get_transactions,
         call({'completed': False,
               'name': '1',
               'projects': [project_id],
-              'memberships': [{'project': project_id, 'section': unclaimed_section_id}]}),
+              'memberships': [{'project': project_id, 'section': unclaimed_section_id}]}, {}),
         call({'completed': False,
               'name': '2',
               'projects': [project_id],
-              'memberships': [{'project': project_id, 'section': unclaimed_section_id}]}),
+              'memberships': [{'project': project_id, 'section': unclaimed_section_id}]}, {}),
     ]
     mock_asana_tasks.create_task.assert_has_calls(expected_calls)
 
