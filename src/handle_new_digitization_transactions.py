@@ -136,11 +136,16 @@ def main(event=None, context=None):
                 config.get('ASANA_WORKSPACE_ID'),
                 {'text': lowercase_transaction['transactionnumber'],
                  'projects.all': config.get('ASANA_PROJECT_ID'),
+                 'completed': False,
                  'opt_fields': 'memberships.section'}))
-        if len(result) != 1:
+        print(result)
+        filtered_result = [
+            t for t in result if t['name'] == str(lowercase_transaction['transactionnumber'])
+        ]
+        if len(filtered_result) != 1:
             raise Exception(
-                f'Expected 1 result for transaction number {lowercase_transaction["transactionnumber"]} but got {len(result)}')
-        task = result[0]
+                f'Expected 1 result for transaction number {lowercase_transaction["transactionnumber"]} but got {len(filtered_result)}')
+        task = filtered_result[0]
         if task['memberships'][0]['section']['gid'] != config.get(
                 'ASANA_BILLING_SECTION_ID'):
             asana_client.sections.add_task_for_section(

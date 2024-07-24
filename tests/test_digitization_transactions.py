@@ -92,7 +92,11 @@ def test_main(mock_asana_sections, mock_asana_tasks, mock_get_transactions,
         ]
     }
     mock_asana_tasks.search_tasks_for_workspace.return_value = [
-        {"gid": task_id, "memberships": [{"section": {"gid": unclaimed_section_id}}]}]
+        {"gid": task_id, "name": "1", "memberships": [
+            {"section": {"gid": unclaimed_section_id}}]},
+        {"gid": task_id, "name": "2", "memberships": [
+            {"section": {"gid": unclaimed_section_id}}]}
+    ]
 
     main()
 
@@ -114,10 +118,12 @@ def test_main(mock_asana_sections, mock_asana_tasks, mock_get_transactions,
         call(workspace_id,
              {'text': 1,
               'projects.all': project_id,
+              'completed': False,
               'opt_fields': 'memberships.section'}),
         call(workspace_id,
              {'text': 2,
               'projects.all': project_id,
+              'completed': False,
               'opt_fields': 'memberships.section'}),
     ]
     mock_asana_tasks.search_tasks_for_workspace.assert_has_calls(
