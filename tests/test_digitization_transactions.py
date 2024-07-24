@@ -119,12 +119,12 @@ def test_main(mock_asana_sections, mock_asana_tasks, mock_get_transactions,
              {'text': 1,
               'projects.all': project_id,
               'completed': False,
-              'opt_fields': 'memberships.section'}),
+              'opt_fields': 'memberships.section,name'}),
         call(workspace_id,
              {'text': 2,
               'projects.all': project_id,
               'completed': False,
-              'opt_fields': 'memberships.section'}),
+              'opt_fields': 'memberships.section,name'}),
     ]
     mock_asana_tasks.search_tasks_for_workspace.assert_has_calls(
         expected_calls)
