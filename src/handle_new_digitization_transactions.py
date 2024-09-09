@@ -138,7 +138,6 @@ def main(event=None, context=None):
                  'projects.all': config.get('ASANA_PROJECT_ID'),
                  'completed': False,
                  'opt_fields': 'memberships.section,name'}))
-        print(result)
         filtered_result = [
             t for t in result if t['name'] == str(lowercase_transaction['transactionnumber'])
         ]

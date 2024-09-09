@@ -28,11 +28,11 @@ Mappings:
       dev: 'https://raccess.rockarch.org/aeonapi'
       prod: 'https://raccess.rockarch.org/aeonapi'
     PhotoduplicationStatus:
-      dev: 9
-      prod: 9
+      dev: 53
+      prod: 53
     TransactionStatus:
-      dev: 22
-      prod: 22
+      dev: 8
+      prod: 8
     BillingStatus:
       dev: 21
       prod: 21
