@@ -6,9 +6,9 @@
 #
 asana==5.0.10
     # via -r requirements.in
-boto3==1.35.10
+boto3==1.35.29
     # via -r requirements.in
-botocore==1.35.10
+botocore==1.35.29
     # via
     #   boto3
     #   s3transfer
@@ -18,7 +18,7 @@ certifi==2024.8.30
     #   requests
 charset-normalizer==3.3.2
     # via requests
-idna==3.8
+idna==3.10
     # via requests
 jmespath==1.0.1
     # via
@@ -36,7 +36,7 @@ six==1.16.0
     # via
     #   asana
     #   python-dateutil
-urllib3==2.2.2
+urllib3==2.2.3
     # via
     #   asana
     #   botocore
