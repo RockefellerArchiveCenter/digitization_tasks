@@ -2,7 +2,7 @@
 Create tasks in Asana from new digitization transactions in Aeon.
 
 ## Dependencies
-- Python 3 (tested on 3.12)
+- Python 3 (tested on 3.11)
 - [asana](https://pypi.org/project/asana/)
 
 ## Usage
