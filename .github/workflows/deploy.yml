@@ -58,7 +58,7 @@ jobs:
         run: aws s3 cp $LAMBDA_NAME.zip s3://$LAMBDA_BUCKET_NAME/$LAMBDA_NAME.zip
 
       - name: Upload file to CloudFormation S3
-        run: aws s3 cp $LAMBDA_NAME_template.yaml s3://$AWS_CLOUDFORMATION_BUCKET_NAME/$LAMBDA_NAME.zip
+        run: aws s3 cp digitization_tasks_template.yaml s3://$AWS_CLOUDFORMATION_BUCKET_NAME/$LAMBDA_NAME
 
       - name: Deploy lambda package
         run: aws lambda update-function-code
