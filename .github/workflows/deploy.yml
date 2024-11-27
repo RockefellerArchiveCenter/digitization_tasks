@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - base
+      - development
 
 jobs:
   deploy:
@@ -61,6 +62,7 @@ jobs:
         run: aws s3 cp digitization_tasks_template.yaml s3://$AWS_CLOUDFORMATION_BUCKET_NAME/$LAMBDA_NAME/
 
       - name: Deploy lambda package
+        if: github.ref == 'refs/heads/base'
         run: aws lambda update-function-code
           --function-name arn:aws:lambda:$AWS_REGION:${{ secrets.AWS_ACCOUNT_ID }}:function:$LAMBDA_NAME
           --zip-file fileb://$LAMBDA_NAME.zip
