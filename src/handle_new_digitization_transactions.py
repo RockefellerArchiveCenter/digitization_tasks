@@ -129,30 +129,39 @@ def main(event=None, context=None):
 
     in_billing_url = f"/odata/Requests?$filter=photoduplicationstatus eq {config.get('AEON_BILLING_STATUS')}"
     transaction_list = aeon_client.get(in_billing_url).json()
+    updated_count = 0
     for transaction in transaction_list['value']:
-        lowercase_transaction = {k.lower(): v for k, v in transaction.items()}
-        result = list(
-            asana_client.tasks.search_tasks_for_workspace(
-                config.get('ASANA_WORKSPACE_ID'),
-                {'text': lowercase_transaction['transactionnumber'],
-                 'projects.all': config.get('ASANA_PROJECT_ID'),
-                 'completed': False,
-                 'opt_fields': 'memberships.section,name'}))
-        filtered_result = [
-            t for t in result if t['name'] == str(lowercase_transaction['transactionnumber'])
-        ]
-        if len(filtered_result) != 1:
-            raise Exception(
-                f'Expected 1 result for transaction number {lowercase_transaction["transactionnumber"]} but got {len(filtered_result)}')
-        task = filtered_result[0]
-        if task['memberships'][0]['section']['gid'] != config.get(
-                'ASANA_BILLING_SECTION_ID'):
-            asana_client.sections.add_task_for_section(
-                config.get('ASANA_BILLING_SECTION_ID'),
-                {'body': {'data': {'task': task['gid']}}})
+        try:
+            lowercase_transaction = {
+                k.lower(): v for k, v in transaction.items()}
+            result = list(
+                asana_client.tasks.search_tasks_for_workspace(
+                    config.get('ASANA_WORKSPACE_ID'),
+                    {'text': lowercase_transaction['transactionnumber'],
+                     'projects.all': config.get('ASANA_PROJECT_ID'),
+                     'completed': False,
+                     'opt_fields': 'memberships.section,name'}))
+            filtered_result = [
+                t for t in result if t['name'] == str(lowercase_transaction['transactionnumber'])
+            ]
+            if len(filtered_result) != 1:
+                raise Exception(
+                    f'Expected 1 result for transaction number {lowercase_transaction["transactionnumber"]} but got {len(filtered_result)}')
+            task = filtered_result[0]
+            if task['memberships'][0]['section']['gid'] != config.get(
+                    'ASANA_BILLING_SECTION_ID'):
+                asana_client.sections.add_task_for_section(
+                    config.get('ASANA_BILLING_SECTION_ID'),
+                    {'body': {'data': {'task': task['gid']}}})
+            updated_count += 1
+        except Exception:
+            traceback.print_exc()
+            pass
 
-    unit_label = "task" if task_count == 1 else "tasks"
-    print(f"{task_count} {unit_label} created")
+    created_label = "task" if task_count == 1 else "tasks"
+    updated_label = "task" if updated_count == 1 else "tasks"
+    print(f"{task_count} {created_label} created")
+    print(f"{updated_count} {updated_label} updated")
     return task_count
 
 
