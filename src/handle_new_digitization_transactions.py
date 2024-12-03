@@ -153,7 +153,7 @@ def main(event=None, context=None):
                 asana_client.sections.add_task_for_section(
                     config.get('ASANA_BILLING_SECTION_ID'),
                     {'body': {'data': {'task': task['gid']}}})
-            updated_count += 1
+                updated_count += 1
         except Exception:
             traceback.print_exc()
             pass
