@@ -120,17 +120,6 @@ Resources:
         Application: !Ref ApplicationName
       Type: String
       Value: !FindInMap [Aeon, TransactionStatus, !Ref ApplicationEnvironment]
-  
-  AeonBillingStatusCodeParam:
-    Type: AWS::SSM::Parameter
-    Properties: 
-      Description: Transaction status code for transactions awaiting payment.
-      Name: !Sub /${ApplicationEnvironment}/${ApplicationName}/AEON_BILLING_STATUS
-      Tags: 
-        Environment: !Ref ApplicationEnvironment
-        Application: !Ref ApplicationName
-      Type: String
-      Value: !FindInMap [Aeon, BillingStatus, !Ref ApplicationEnvironment]
 
   AsanaAccessTokenParam:
     Type: AWS::SSM::Parameter
@@ -164,17 +153,6 @@ Resources:
         Application: !Ref ApplicationName
       Type: String
       Value: !FindInMap [Asana, UnclaimedSectionId, !Ref ApplicationEnvironment]
-
-  AsanaBillingSectionIdParam:
-    Type: AWS::SSM::Parameter
-    Properties: 
-      Description: Asana section ID for tasks waiting to be billed.
-      Name: !Sub /${ApplicationEnvironment}/${ApplicationName}/ASANA_BILLING_SECTION_ID
-      Tags: 
-        Environment: !Ref ApplicationEnvironment
-        Application: !Ref ApplicationName
-      Type: String
-      Value: !FindInMap [Asana, BillingSectionId, !Ref ApplicationEnvironment]
 
   AsanaWorkspaceIdParam:
     Type: AWS::SSM::Parameter
@@ -230,13 +208,6 @@ Resources:
       Action: "lambda:InvokeFunction"
       Principal: "events.amazonaws.com"
       SourceArn: !GetAtt DigitizationTasksEventRule.Arn
-
-  DigitizationTasksTravisEcRPermission:
-    Type: AWS::Lambda::Permission
-    Properties:
-      FunctionName: !Ref DigitizationTasksFunction
-      Action: "lambda:UpdateFunctionCode"
-      Principal: "arn:aws:iam::817658541382:user/TravisECR"
 
   DigitizationTasksLogGroup:
     Type: AWS::Logs::LogGroup
