@@ -38,14 +38,11 @@ Mappings:
       prod: 21
   Asana:
     ProjectId:
-      dev: 1206971441441570
-      prod: 1206971441441570
+      dev: 1210321196994603
+      prod: 1210321196994603
     UnclaimedSectionId:
-      dev: 1206971441441575
-      prod: 1206971441441575
-    BillingSectionId:
-      dev: 1207658380417124
-      prod: 1207658380417124
+      dev: 1210321196994606
+      prod: 1210321196994606
     WorkspaceId:
       dev: 4711715224923
       prod: 4711715224923
