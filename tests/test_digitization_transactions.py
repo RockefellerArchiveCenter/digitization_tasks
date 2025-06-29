@@ -93,8 +93,8 @@ def test_main(mock_asana_tasks, mock_get_transactions, mock_get_config):
                 {"transactionNumber": 2, "creationdate": "2010-01-01T00:00:00.000Z"}
             ]
         },
-        {"transactionNumber": 5, "transactionStatus": 25},
-        {"transactionnumber": 6, "transactionstatus": 26}
+        {"transactionNumber": 5, "photoduplicationStatus": 25},
+        {"transactionnumber": 6, "photoduplicationstatus": 26}
     ]
     mock_asana_tasks.get_tasks_for_project.return_value = [
         {"name": "5", "gid": "123456"}, {"name": "6", "gid": "654321"}

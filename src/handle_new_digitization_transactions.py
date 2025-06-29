@@ -136,13 +136,13 @@ def main(event=None, context=None):
     for task in existing_tasks:
         task_transaction = aeon_client.get(f"/Requests/{task['name']}").json()
         lowercase_transaction = lowercase_dict(task_transaction)
-        if lowercase_transaction['transactionstatus'] == config.get(
+        if lowercase_transaction['photoduplicationstatus'] == config.get(
                 'AEON_CANCELLED_STAFF_STATUS'):
             asana_client.tasks.update_task(
                 {"data": {"completed": True, "notes": "Cancelled by staff."}},
                 task['gid'],
                 {})
-        elif lowercase_transaction['transactionstatus'] == config.get('AEON_CANCELLED_USER_STATUS'):
+        elif lowercase_transaction['photoduplicationstatus'] == config.get('AEON_CANCELLED_USER_STATUS'):
             asana_client.tasks.update_task(
                 {"data": {"completed": True, "notes": "Cancelled by user."}},
                 task['gid'],
