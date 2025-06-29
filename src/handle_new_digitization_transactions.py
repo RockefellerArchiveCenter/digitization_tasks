@@ -8,6 +8,7 @@ Requires encrypted environment variables:
 """
 
 import traceback
+from datetime import datetime, timedelta
 from os import environ
 
 import asana
@@ -79,11 +80,18 @@ def get_config(ssm_parameter_path):
 
 def task_data(transaction, project_id, section_id):
     """Formats initial task data."""
+    creation_date = datetime.strptime(
+        transaction['creationdate'],
+        "%Y-%m-%dT%H:%M:%S.%fZ")
+    ninety_days = timedelta(days=90)
+    due_date = creation_date + ninety_days
+
     return {
         "data": {
             "completed": False,
             "name": str(transaction['transactionnumber']),
             "projects": [project_id],
+            "due_on": datetime.strftime(due_date, "%Y-%m-%d"),
             "memberships": [
                 {
                     "project": project_id,
@@ -94,10 +102,8 @@ def task_data(transaction, project_id, section_id):
     }
 
 
-def get_task_names(asana_tasks, project_gid):
-    """Returns a list of task names for all tasks in a project."""
-    tasks = asana_tasks.get_tasks_for_project(project_gid, {'limit': 50})
-    return list(t['name'] for t in tasks)
+def lowercase_dict(source_dict):
+    return {k.lower(): v for k, v in source_dict.items()}
 
 
 def main(event=None, context=None):
@@ -109,15 +115,15 @@ def main(event=None, context=None):
         config.get("AEON_ACCESS_TOKEN"))
     asana_client = AsanaClient(config.get("ASANA_ACCESS_TOKEN"))
 
-    existing_tasks = get_task_names(
-        asana_client.tasks, config.get('ASANA_PROJECT_ID'))
+    existing_tasks = asana_client.tasks.get_tasks_for_project(
+        config.get('ASANA_PROJECT_ID'), {'limit': 50})
+    task_names = list(t['name'] for t in existing_tasks)
 
     new_transaction_url = f"/odata/Requests?$filter=photoduplicationstatus eq {config.get('AEON_PHOTODUPLICATION_STATUS')} and transactionstatus eq {config.get('AEON_TRANSACTION_STATUS')}"
     transaction_list = aeon_client.get(new_transaction_url).json()
     for transaction in transaction_list['value']:
-        lowercase_transaction = {k.lower(): v for k, v in transaction.items()}
-        if str(
-                lowercase_transaction['transactionnumber']) not in existing_tasks:
+        lowercase_transaction = lowercase_dict(transaction)
+        if str(lowercase_transaction['transactionnumber']) not in task_names:
             asana_client.tasks.create_task(
                 task_data(
                     lowercase_transaction,
@@ -126,6 +132,21 @@ def main(event=None, context=None):
                 {}
             )
             task_count += 1
+
+    for task in existing_tasks:
+        task_transaction = aeon_client.get(f"/Requests/{task['name']}").json()
+        lowercase_transaction = lowercase_dict(task_transaction)
+        if lowercase_transaction['transactionstatus'] == config.get(
+                'AEON_CANCELLED_STAFF_STATUS'):
+            asana_client.tasks.update_task(
+                {"data": {"completed": True, "notes": "Cancelled by staff."}},
+                task['gid'],
+                {})
+        elif lowercase_transaction['transactionstatus'] == config.get('AEON_CANCELLED_USER_STATUS'):
+            asana_client.tasks.update_task(
+                {"data": {"completed": True, "notes": "Cancelled by user."}},
+                task['gid'],
+                {})
 
     created_label = "task" if task_count == 1 else "tasks"
     print(f"{task_count} {created_label} created")
