@@ -33,6 +33,12 @@ Mappings:
     TransactionStatus:
       dev: 8
       prod: 8
+    CancelledStaffStatus:
+      dev: 31
+      prod: 31
+    CancelledUserStatus:
+      dev: 29
+      prod: 29
     BillingStatus:
       dev: 21
       prod: 21
@@ -117,6 +123,28 @@ Resources:
         Application: !Ref ApplicationName
       Type: String
       Value: !FindInMap [Aeon, TransactionStatus, !Ref ApplicationEnvironment]
+  
+  AeonCancelledStaffStatusCodeParam:
+    Type: AWS::SSM::Parameter
+    Properties: 
+      Description: Transaction status code for transactions cancelled by staff.
+      Name: !Sub /${ApplicationEnvironment}/${ApplicationName}/AEON_CANCELLED_STAFF_STATUS
+      Tags: 
+        Environment: !Ref ApplicationEnvironment
+        Application: !Ref ApplicationName
+      Type: String
+      Value: !FindInMap [Aeon, CancelledStaffStatus, !Ref ApplicationEnvironment]
+  
+  AeonCancelledUserStatusCodeParam:
+    Type: AWS::SSM::Parameter
+    Properties: 
+      Description: Transaction status code for transactions cancelled by user.
+      Name: !Sub /${ApplicationEnvironment}/${ApplicationName}/AEON_CANCELLED_USER_STATUS
+      Tags: 
+        Environment: !Ref ApplicationEnvironment
+        Application: !Ref ApplicationName
+      Type: String
+      Value: !FindInMap [Aeon, CancelledUserStatus, !Ref ApplicationEnvironment]
 
   AsanaAccessTokenParam:
     Type: AWS::SSM::Parameter
