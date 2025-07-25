@@ -92,6 +92,7 @@ def task_data(transaction, project_id, section_id):
             "name": str(transaction['transactionnumber']),
             "projects": [project_id],
             "due_on": datetime.strftime(due_date, "%Y-%m-%d"),
+            "notes": transaction['location'],
             "memberships": [
                 {
                     "project": project_id,

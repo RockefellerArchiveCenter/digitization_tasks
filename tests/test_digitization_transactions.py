@@ -25,10 +25,12 @@ def test_task_data():
     transaction_number = 123456
     project_id = 654321
     section_id = 123
+    location = "106.1.1"
     output = task_data(
         {
             "transactionnumber": transaction_number,
-            "creationdate": "2010-01-01T00:00:00.000Z"
+            "creationdate": "2010-01-01T00:00:00.000Z",
+            "location": location
         },
         project_id, section_id)
     assert output == {
@@ -38,6 +40,7 @@ def test_task_data():
             "due_on": "2010-04-01",
             "name": f"{transaction_number}",
             "projects": [project_id],
+            "notes": location,
             "memberships": [
                 {
                     "project": project_id,
@@ -74,6 +77,7 @@ def test_main(mock_asana_tasks, mock_get_transactions, mock_get_config):
     project_id = 123456
     unclaimed_section_id = 123
     workspace_id = 654321
+    location = "106.1.1"
     mock_get_config.return_value = {
         'AEON_ACCESS_TOKEN': '123456',
         'AEON_BASEURL': 'https://raccess.rockarch.org/aeonapi',
@@ -89,8 +93,16 @@ def test_main(mock_asana_tasks, mock_get_transactions, mock_get_config):
     mock_get_transactions.return_value.json.side_effect = [
         {
             "value": [
-                {"TransactionNumber": 1, "creationDate": "2010-01-01T00:00:00.000Z"},
-                {"transactionNumber": 2, "creationdate": "2010-01-01T00:00:00.000Z"}
+                {
+                    "TransactionNumber": 1,
+                    "creationDate": "2010-01-01T00:00:00.000Z",
+                    "location": location
+                },
+                {
+                    "transactionNumber": 2,
+                    "creationdate": "2010-01-01T00:00:00.000Z",
+                    "location": location
+                }
             ]
         },
         {"transactionNumber": 5, "photoduplicationStatus": 25},
@@ -121,12 +133,14 @@ def test_main(mock_asana_tasks, mock_get_transactions, mock_get_config):
         call({'data':
               {'completed': False,
                'due_on': '2010-04-01',
+               'notes': location,
                'name': '1',
                'projects': [project_id],
                'memberships': [{'project': project_id, 'section': unclaimed_section_id}]}}, {}),
         call({'data':
               {'completed': False,
                'due_on': '2010-04-01',
+               'notes': location,
                'name': '2',
                'projects': [project_id],
                'memberships': [{'project': project_id, 'section': unclaimed_section_id}]}}, {}),
