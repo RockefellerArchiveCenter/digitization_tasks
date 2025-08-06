@@ -30,9 +30,6 @@ Mappings:
     PhotoduplicationStatus:
       dev: 53
       prod: 53
-    TransactionStatus:
-      dev: 8
-      prod: 8
     CancelledStaffStatus:
       dev: 31
       prod: 31
@@ -112,17 +109,6 @@ Resources:
         Application: !Ref ApplicationName
       Type: String
       Value: !FindInMap [Aeon, PhotoduplicationStatus, !Ref ApplicationEnvironment]
-  
-  AeonTransactionStatusCodeParam:
-    Type: AWS::SSM::Parameter
-    Properties: 
-      Description: Transaction status code for new transactions.
-      Name: !Sub /${ApplicationEnvironment}/${ApplicationName}/AEON_TRANSACTION_STATUS
-      Tags: 
-        Environment: !Ref ApplicationEnvironment
-        Application: !Ref ApplicationName
-      Type: String
-      Value: !FindInMap [Aeon, TransactionStatus, !Ref ApplicationEnvironment]
   
   AeonCancelledStaffStatusCodeParam:
     Type: AWS::SSM::Parameter
