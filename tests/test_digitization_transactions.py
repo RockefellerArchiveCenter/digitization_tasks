@@ -71,7 +71,6 @@ def test_config():
 def test_main(mock_asana_tasks, mock_get_transactions, mock_get_config):
     """Test that all methods are called with correct arguments."""
     photoduplication_status = 9
-    transaction_status = 22
     cancelled_staff_status = 25
     cancelled_user_status = 26
     project_id = 123456
@@ -82,7 +81,6 @@ def test_main(mock_asana_tasks, mock_get_transactions, mock_get_config):
         'AEON_ACCESS_TOKEN': '123456',
         'AEON_BASEURL': 'https://raccess.rockarch.org/aeonapi',
         'AEON_PHOTODUPLICATION_STATUS': photoduplication_status,
-        'AEON_TRANSACTION_STATUS': transaction_status,
         'AEON_CANCELLED_STAFF_STATUS': cancelled_staff_status,
         'AEON_CANCELLED_USER_STATUS': cancelled_user_status,
         'ASANA_ACCESS_TOKEN': '654321',
@@ -119,7 +117,7 @@ def test_main(mock_asana_tasks, mock_get_transactions, mock_get_config):
     assert mock_get_transactions.call_count == 3
     expected_calls = [
         call(
-            f'/odata/Requests?$filter=photoduplicationstatus eq {photoduplication_status} and transactionstatus eq {transaction_status}'),
+            f'/odata/Requests?$filter=photoduplicationstatus eq {photoduplication_status}'),
         call().json(),
         call('/Requests/5'),
         call().json(),
