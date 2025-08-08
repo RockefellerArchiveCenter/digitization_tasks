@@ -115,8 +115,8 @@ def main(event=None, context=None):
         config.get("AEON_ACCESS_TOKEN"))
     asana_client = AsanaClient(config.get("ASANA_ACCESS_TOKEN"))
 
-    existing_tasks = asana_client.tasks.get_tasks_for_project(
-        config.get('ASANA_PROJECT_ID'), {'limit': 50, 'completed_since': 'now'})
+    existing_tasks = list(asana_client.tasks.get_tasks_for_project(
+        config.get('ASANA_PROJECT_ID'), {'limit': 50, 'completed_since': 'now'}))
     task_names = list(t['name'] for t in existing_tasks)
 
     new_transaction_url = f"/odata/Requests?$filter=photoduplicationstatus eq {config.get('AEON_PHOTODUPLICATION_STATUS')}"
