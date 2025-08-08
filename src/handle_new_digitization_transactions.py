@@ -108,7 +108,6 @@ def lowercase_dict(source_dict):
 
 
 def main(event=None, context=None):
-    task_count = 0
     full_config_path = f"/{environ.get('ENV')}/{environ.get('APP_CONFIG_PATH')}"
     config = get_config(full_config_path)
     aeon_client = AeonClient(
@@ -117,7 +116,7 @@ def main(event=None, context=None):
     asana_client = AsanaClient(config.get("ASANA_ACCESS_TOKEN"))
 
     existing_tasks = asana_client.tasks.get_tasks_for_project(
-        config.get('ASANA_PROJECT_ID'), {'limit': 50})
+        config.get('ASANA_PROJECT_ID'), {'limit': 50, 'completed_since': 'now'})
     task_names = list(t['name'] for t in existing_tasks)
 
     new_transaction_url = f"/odata/Requests?$filter=photoduplicationstatus eq {config.get('AEON_PHOTODUPLICATION_STATUS')}"
@@ -132,26 +131,17 @@ def main(event=None, context=None):
                     config.get('ASANA_UNCLAIMED_SECTION_ID')),
                 {}
             )
-            task_count += 1
+            print(
+                f'Task for transaction {lowercase_transaction["transactionnumber"]} created.')
 
     for task in existing_tasks:
         task_transaction = aeon_client.get(f"/Requests/{task['name']}").json()
         lowercase_transaction = lowercase_dict(task_transaction)
-        if lowercase_transaction['photoduplicationstatus'] == config.get(
-                'AEON_CANCELLED_STAFF_STATUS'):
-            asana_client.tasks.update_task(
-                {"data": {"completed": True, "notes": "Cancelled by staff."}},
-                task['gid'],
-                {})
-        elif lowercase_transaction['photoduplicationstatus'] == config.get('AEON_CANCELLED_USER_STATUS'):
-            asana_client.tasks.update_task(
-                {"data": {"completed": True, "notes": "Cancelled by user."}},
-                task['gid'],
-                {})
-
-    created_label = "task" if task_count == 1 else "tasks"
-    print(f"{task_count} {created_label} created")
-    return task_count
+        if lowercase_transaction['photoduplicationstatus'] in [
+                config.get('AEON_CANCELLED_STAFF_STATUS'),
+                config.get('AEON_CANCELLED_USER_STATUS')]:
+            asana_client.tasks.delete_task(task['gid'])
+            print(f'Task for cancelled transaction {task["name"]} deleted.')
 
 
 if __name__ == "__main__":

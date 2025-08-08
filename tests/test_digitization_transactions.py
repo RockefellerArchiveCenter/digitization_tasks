@@ -145,9 +145,9 @@ def test_main(mock_asana_tasks, mock_get_transactions, mock_get_config):
     ]
     mock_asana_tasks.create_task.assert_has_calls(expected_calls)
 
-    assert mock_asana_tasks.update_task.call_count == 2
+    mock_asana_tasks.delete_task.call_count == 1
     expected_calls = [
-        call({'data': {'completed': True, 'notes': 'Cancelled by staff.'}}, '123456', {}),
-        call({'data': {'completed': True, 'notes': 'Cancelled by user.'}}, '654321', {})
+        call('123456'),
+        call('654321')
     ]
-    mock_asana_tasks.update_task.assert_has_calls(expected_calls)
+    mock_asana_tasks.delete_task.assert_has_calls(expected_calls)
