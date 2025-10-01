@@ -140,13 +140,16 @@ def main(event=None, context=None):
                 f'Task for transaction {lowercase_transaction["transactionnumber"]} created.')
 
     for task in existing_tasks:
-        task_transaction = aeon_client.get(f"/Requests/{task['name']}").json()
-        lowercase_transaction = lowercase_dict(task_transaction)
-        if int(lowercase_transaction['photoduplicationstatus']) in [
-                int(config.get('AEON_CANCELLED_STAFF_STATUS')),
-                int(config.get('AEON_CANCELLED_USER_STATUS'))]:
-            asana_client.tasks.delete_task(task['gid'])
-            print(f'Task for cancelled transaction {task["name"]} deleted.')
+        if task.get('name'):
+            task_transaction = aeon_client.get(
+                f"/Requests/{task['name']}").json()
+            lowercase_transaction = lowercase_dict(task_transaction)
+            if int(lowercase_transaction['photoduplicationstatus']) in [
+                    int(config.get('AEON_CANCELLED_STAFF_STATUS')),
+                    int(config.get('AEON_CANCELLED_USER_STATUS'))]:
+                asana_client.tasks.delete_task(task['gid'])
+                print(
+                    f'Task for cancelled transaction {task["name"]} deleted.')
 
 
 if __name__ == "__main__":
