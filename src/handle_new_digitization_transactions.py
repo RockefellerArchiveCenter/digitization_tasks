@@ -8,7 +8,6 @@ Requires encrypted environment variables:
 """
 
 import traceback
-from datetime import datetime, timedelta
 from os import environ
 
 import asana
@@ -80,23 +79,11 @@ def get_config(ssm_parameter_path):
 
 def task_data(transaction, project_id, section_id):
     """Formats initial task data."""
-    try:
-        creation_date = datetime.strptime(
-            transaction['creationdate'],
-            "%Y-%m-%dT%H:%M:%S.%fZ")
-    except ValueError:
-        creation_date = datetime.strptime(
-            transaction['creationdate'],
-            "%Y-%m-%dT%H:%M:%SZ")
-    ninety_days = timedelta(days=90)
-    due_date = creation_date + ninety_days
-
     return {
         "data": {
             "completed": False,
             "name": str(transaction['transactionnumber']),
             "projects": [project_id],
-            "due_on": datetime.strftime(due_date, "%Y-%m-%d"),
             "notes": transaction['location'],
             "memberships": [
                 {
