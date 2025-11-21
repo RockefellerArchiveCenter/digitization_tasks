@@ -29,7 +29,6 @@ def test_task_data():
     output = task_data(
         {
             "transactionnumber": transaction_number,
-            "creationdate": "2010-01-01T00:00:00.000Z",
             "location": location
         },
         project_id, section_id)
@@ -37,7 +36,6 @@ def test_task_data():
         "data":
         {
             "completed": False,
-            "due_on": "2010-04-01",
             "name": f"{transaction_number}",
             "projects": [project_id],
             "notes": location,
@@ -93,12 +91,10 @@ def test_main(mock_asana_tasks, mock_get_transactions, mock_get_config):
             "value": [
                 {
                     "TransactionNumber": 1,
-                    "creationDate": "2010-01-01T00:00:00.000Z",
                     "location": location
                 },
                 {
                     "transactionNumber": 2,
-                    "creationdate": "2010-01-01T00:00:00.000Z",
                     "location": location
                 }
             ]
@@ -130,14 +126,12 @@ def test_main(mock_asana_tasks, mock_get_transactions, mock_get_config):
     expected_calls = [
         call({'data':
               {'completed': False,
-               'due_on': '2010-04-01',
                'notes': location,
                'name': '1',
                'projects': [project_id],
                'memberships': [{'project': project_id, 'section': unclaimed_section_id}]}}, {}),
         call({'data':
               {'completed': False,
-               'due_on': '2010-04-01',
                'notes': location,
                'name': '2',
                'projects': [project_id],
