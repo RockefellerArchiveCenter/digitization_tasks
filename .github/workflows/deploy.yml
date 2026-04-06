@@ -19,15 +19,15 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6.0.2
 
       - name: Configure Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6.2.0
         with:
           python-version: '3.11'
 
       - name: Export secrets to environment variables
-        uses: oNaiPs/secrets-to-env-action@v1.5
+        uses: oNaiPs/secrets-to-env-action@v1.8
         with:
           secrets: ${{ toJSON(secrets) }}
 
@@ -44,8 +44,9 @@ jobs:
         run: |
           cp ${{ env.LAMBDA_HANDLER_CODE }} ${{ env.BASENAME }}
           zip ${{ env.LAMBDA_NAME }}.zip ${{ env.BASENAME }}
+          
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4.0.2
+        uses: aws-actions/configure-aws-credentials@v6.0.0
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
