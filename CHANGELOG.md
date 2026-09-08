@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.3](https://github.com/RockefellerArchiveCenter/digitization_tasks/compare/v1.0.2...v1.0.3) (2026-09-08)
+
+
+### Bug Fixes
+
+* **deps:** Scheduled dependency updates ([7d4c9bf](https://github.com/RockefellerArchiveCenter/digitization_tasks/commit/7d4c9bfa5fa4605cf0b996cc1a7a8ff7702ecbbf))
+
 ## [1.0.2](https://github.com/RockefellerArchiveCenter/digitization_tasks/compare/v1.0.1...v1.0.2) (2026-08-03)
 
 
