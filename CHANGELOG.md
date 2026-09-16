@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.4](https://github.com/RockefellerArchiveCenter/digitization_tasks/compare/v1.0.3...v1.0.4) (2026-09-16)
+
+
+### Bug Fixes
+
+* use secrets manager in deploy ([188ff91](https://github.com/RockefellerArchiveCenter/digitization_tasks/commit/188ff9159c6e507b65449dcad5ccfd764c499051))
+
 ## [1.0.3](https://github.com/RockefellerArchiveCenter/digitization_tasks/compare/v1.0.2...v1.0.3) (2026-09-08)
 
 
