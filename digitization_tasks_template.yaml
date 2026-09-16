@@ -15,12 +15,6 @@ Parameters:
     Type: String
     Description: Name of the application to be deployed.
     Default: digitization_tasks
-  AeonAccessToken:
-    Type: String
-    Description: Access token for Aeon.
-  AsanaAccessToken:
-    Type: String
-    Description: Access token for Asana.
 
 Mappings:
   Aeon:
@@ -75,7 +69,7 @@ Resources:
                 Action: 
                   - 'ssm:GetParametersByPath*'
                   - 'ssm:PutParameter'
-                Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${ApplicationEnvironment}/${ApplicationName}*'
+                Resource: !Sub 'arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${ApplicationEnvironment}/${ApplicationName}*'
 
   AeonAccessTokenParam:
     Type: AWS::SSM::Parameter
@@ -86,7 +80,7 @@ Resources:
         Environment: !Ref ApplicationEnvironment
         Application: !Ref ApplicationName
       Type: String
-      Value: !Ref AeonAccessToken
+      Value: !Sub '{{resolve:secretsmanager:${ApplicationEnvironment}/digitization-tasks-deploy:SecretString:AeonAccessToken}}'
 
   AeonBaseUrlParam:
     Type: AWS::SSM::Parameter
@@ -141,7 +135,7 @@ Resources:
         Environment: !Ref ApplicationEnvironment
         Application: !Ref ApplicationName
       Type: String
-      Value: !Ref AsanaAccessToken
+      Value: !Sub '{{resolve:secretsmanager:${ApplicationEnvironment}/digitization-tasks-deploy:SecretString:AsanaAccessToken}}'
 
   AsanaProjectIdParam:
     Type: AWS::SSM::Parameter
