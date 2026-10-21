@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.0.6](https://github.com/RockefellerArchiveCenter/digitization_tasks/compare/v1.0.5...v1.0.6) (2026-10-21)
+
+
+### Bug Fixes
+
+* update pip ([ff2d3a5](https://github.com/RockefellerArchiveCenter/digitization_tasks/commit/ff2d3a59e87912790c551774b124f4ec4b84cfef))
+* update pip ([ff2d3a5](https://github.com/RockefellerArchiveCenter/digitization_tasks/commit/ff2d3a59e87912790c551774b124f4ec4b84cfef))
+* update pip ([d34c8c6](https://github.com/RockefellerArchiveCenter/digitization_tasks/commit/d34c8c62cc924bfbcda1a2d34e5c95c408da1c1d))
+* update pip ([d34c8c6](https://github.com/RockefellerArchiveCenter/digitization_tasks/commit/d34c8c62cc924bfbcda1a2d34e5c95c408da1c1d))
+* update pip ([e2d6cd7](https://github.com/RockefellerArchiveCenter/digitization_tasks/commit/e2d6cd7e7ab57b1f72418dbb47c9dca44bef5135))
+
 ## [1.0.5](https://github.com/RockefellerArchiveCenter/digitization_tasks/compare/v1.0.4...v1.0.5) (2026-10-05)
 
 
