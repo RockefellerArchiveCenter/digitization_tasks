@@ -1,12 +1,12 @@
-asana==5.4.0
+asana==5.5.1
     # via -r requirements.in
-boto3==1.43.117
+boto3==1.43.123
     # via -r requirements.in
-botocore==1.43.117
+botocore==1.43.123
     # via
     #   boto3
     #   s3transfer
-certifi==2026.10.19
+certifi==2026.10.23
     # via
     #   asana
     #   requests
